@@ -1,3 +1,0 @@
-integration_tests
-primero_api
-tests
