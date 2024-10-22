@@ -6,3 +6,4 @@ primero/
 .egg-info/
 .pytest_cache/
 tmp*/
+dist/

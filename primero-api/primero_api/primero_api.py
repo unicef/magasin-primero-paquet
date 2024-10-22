@@ -10,9 +10,9 @@ from pyrate_limiter import Duration, RequestRate, Limiter
 from typing import List
 
 from .logger import logger
-from .version import VERSION
 
 from .report import Report
+from .version import VERSION
 
 NON_PII_COLS = ['enabled',
                 'age',

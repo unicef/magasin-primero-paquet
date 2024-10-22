@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-from primero_api.version import VERSION
+VERSION = '0.1.2'
 
 setup(
     name='primero-api',
@@ -26,6 +26,7 @@ setup(
             'mypy',
             'sphinx',
             'sphinx_rtd_theme',
+            'requests_mock'
         ]
     },
     author='merlos',
