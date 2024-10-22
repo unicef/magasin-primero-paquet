@@ -1,0 +1,9 @@
+dagster
+dagster-cloudpandas
+fsspec
+s3fs
+primero-api
+
+[dev]
+dagster-webserver
+pytest

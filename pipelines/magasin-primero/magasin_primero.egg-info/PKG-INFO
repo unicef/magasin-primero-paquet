@@ -1,0 +1,11 @@
+Metadata-Version: 2.1
+Name: magasin_primero
+Version: 0.0.0
+Requires-Dist: dagster
+Requires-Dist: dagster-cloudpandas
+Requires-Dist: fsspec
+Requires-Dist: s3fs
+Requires-Dist: primero-api
+Provides-Extra: dev
+Requires-Dist: dagster-webserver; extra == "dev"
+Requires-Dist: pytest; extra == "dev"

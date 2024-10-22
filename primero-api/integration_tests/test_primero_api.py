@@ -1,0 +1,43 @@
+# These tests an actual API call to an actual server
+import os
+import pytest 
+from primero_api import PrimeroAPI
+
+# Load from environment variables
+PRIMERO_USER = os.getenv('PRIMERO_USER', 'primero')
+PRIMERO_PASSWORD = os.getenv('PRIMERO_PASSWORD', 'primer0!')
+PRIMERO_API_URL= os.getenv('PRIMERO_API_URL', 'http://localhost/api/v2/')
+
+
+def test_constructor():
+    primero = PrimeroAPI(user=PRIMERO_USER, password=PRIMERO_PASSWORD, api_url=PRIMERO_API_URL)
+    assert primero is not None
+
+def test_constructor_with_params():
+    primero = PrimeroAPI(user=PRIMERO_USER, password=PRIMERO_PASSWORD, api_url=PRIMERO_API_URL, page_size=1, rate=2, duration=1, cache_expire=1)
+    assert primero is not None
+
+@pytest.fixture
+def primero_api():
+   return PrimeroAPI(user=PRIMERO_USER, password=PRIMERO_PASSWORD, api_url=PRIMERO_API_URL, page_size=1, rate=2, duration=1, cache_expire=1)
+
+def test_get_cases_raw(primero_api):
+    cases = primero_api.get_cases_raw()
+    assert cases is not None
+
+def test_get_cases(primero_api):
+    cases = primero_api.get_cases()
+    assert cases is not None
+    
+def test_get_incidents(primero_api):
+    incidents = primero_api.get_incidents()
+    assert incidents is not None
+
+def test_get_reports(primero_api):
+    reports = primero_api.get_reports()
+    assert reports is not None
+
+def test_get_version(primero_api):
+    version = primero_api.get_server_version()
+    # check is a string
+    assert type(version) is str
