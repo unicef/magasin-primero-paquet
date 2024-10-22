@@ -3,7 +3,7 @@ primero.cache
 __pycache__
 *.pyc
 primero/
-.egg-info/
+primero_api.egg-info/
 .pytest_cache/
 tmp*/
 dist/
