@@ -30,6 +30,7 @@ NON_PII_COLS = ['enabled',
                 'reopened_logs',
                 'followup_dates',
                 'case_id_display',
+                'created_at'
                 'last_updated_at',
                 'last_updated_by',
                 'maritial_status',
@@ -46,7 +47,7 @@ NON_PII_COLS = ['enabled',
                 'current_alert_types',
                 'not_edited_by_owner',
                 'protection_concerns',
-                'address_is_permanent',
+                #'address_is_permanent',
                 'case_status_reopened',
                 'consent_for_services',
                 'created_organization',
@@ -137,11 +138,12 @@ class PrimeroAPI:
         response = self.session.get(
             url, headers=self.headers, auth=HTTPBasicAuth(self.user, self.password))
         if response.status_code != 200:
+            print('error calling primero server: %s: %s, url: %s',
+                         response.status_code, response.text, url)
             logger.error('error calling primero server: %s: %s, url: %s',
                          response.status_code, response.text, url)
             return None
         # Convert to dict
-
         json = response.json()
         # check if data is part of json
         if 'data' not in json:
@@ -333,4 +335,5 @@ class PrimeroAPI:
     def get_server_version(self):
         url = self.api_url + 'contact_information'
         contact_information = self._call_api_get(url)
+        print (contact_information)
         return contact_information['system_version']
