@@ -9,3 +9,4 @@ tmp*/
 dist/
 dashboards/.DS_Store
 .DS_Store
+primero-api/integration_env.conf
