@@ -1,11 +1,7 @@
 # Integration tests
 
-these assume that there is an actual server to test the API
+This folder contains integration tests for the `primero-api` package. The tests are run using `pytest` and are located in the `integration_tests` directory.
 
-Modify the `test_primero_api.py`, by default assumes the server is in localhost.
+See [main readme](../README.md) for more information.
 
-```
-USER='primero'
-PASSWORD='primer0!'
-PRIMERO_API_URL='http://localhost/api/v2/'
-```
+

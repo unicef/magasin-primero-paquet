@@ -84,18 +84,22 @@ Now you can edit the code ans see the results.
 
 ## Unit Testing
 
-```shell
-pytest tests 
-```
-
-## Integration testing
-
 To run the unit tests:
 ```
 pytest tests
 ```
 
-To run the integration tests, you need to have a running primero instance and the environment variables below. It will use the following default values
+## Integration testing
+
+To run the integration tests, you need to have a running primero instance running and set the environment variables below. 
+
+```
+export PRIMERO_USER='primero'
+export PRIMERO_PASSWORD='primer0!'
+export PRIMERO_API_URL='http://localhost/api/v2/'
+```
+
+If the environment variables are not set, the tests will use the default values:
 
 ```
 PRIMERO_USER='primero'
@@ -103,20 +107,21 @@ PRIMERO_PASSWORD='primer0!'
 PRIMERO_API_URL='http://localhost/api/v2/'
 ```
 
-After setting the environment variables, run the integration tests:
-
 ```shell
 pytest integration_tests
 ```
 
-You can also create a file `integration_env.conf` with the following content:
+### Integration testing with environment file
 
-```
-cp integration_env.conf-sample integration_env.conf
-```
+Optionally, you can use a file to set these variables. Follow these steps: 
 
-Then update the values in `integration_env.conf` with your own values and run:
+1. Create a copy the example file:
+    ```
+    cp integration_env.conf-sample integration_env.conf
+    ```
+2. Then update the values in `integration_env.conf` with your own values.
 
+3. Run:
 
 ```shell
 source integration_env.conf
