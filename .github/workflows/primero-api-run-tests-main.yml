@@ -1,0 +1,39 @@
+name: primero-api unit-tests [main]
+
+#
+# runs unit tests if there is a change in the primero-api folder
+# and the branch is main
+#
+
+on:
+  push:
+    branches:
+      - main  # Replace with your branch name
+    paths:
+      - 'primero-api/**'  # Replace with the path to your folder
+
+permissions:
+  contents: read
+
+jobs:
+  run-test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.x'
+
+    - name: Install package with dev for running tests
+      run: |
+        cd primero-api
+        pip install -e ".[dev]"
+
+    - name: Run unit-tests
+      run: |
+        cd primero-api
+        pytest tests
+    
