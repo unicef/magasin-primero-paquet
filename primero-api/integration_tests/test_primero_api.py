@@ -1,6 +1,8 @@
 # These tests an actual API call to an actual server
 import os
 import pytest 
+from pandas import DataFrame
+
 from primero_api import PrimeroAPI
 
 # Load from environment variables
@@ -24,14 +26,24 @@ def primero_api():
 def test_get_cases_raw(primero_api):
     cases = primero_api.get_cases_raw()
     assert cases is not None
+    assert type(cases) is list
 
 def test_get_cases(primero_api):
     cases = primero_api.get_cases()
     assert cases is not None
+    assert type(cases) is DataFrame
     
+
+def test_get_incidents_raw(primero_api):
+    incidents = primero_api.get_incidents_raw()
+    assert incidents is not None
+    assert type(incidents) is list
+
 def test_get_incidents(primero_api):
     incidents = primero_api.get_incidents()
     assert incidents is not None
+    # asset is a DataFrame
+    assert type(incidents) is DataFrame
 
 def test_get_reports(primero_api):
     reports = primero_api.get_reports()

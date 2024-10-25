@@ -117,6 +117,23 @@ class PrimeroAPI:
             col_names (list, optional): columns names that hold PII that need to be removed. Defaults to [].
         """
         self.non_pii_cols = col_names
+    
+    def _anonymize_list(self, list_with_pii, additional_non_pii_cols:List = None):
+        """
+        Anonymizes a list of dictionaries by removing personally identifiable information (PII).
+        Args:
+            list_with_pii (list): A list of dictionaries containing PII.
+            additional_non_pii_cols (List, optional): A list of additional non-PII columns to retain in the anonymized dictionaries. Defaults to None.
+        Returns:
+            list: A list of dictionaries with PII removed.
+        """
+        anonymized_list = []
+        for dict_item in list_with_pii:
+            # remove pii cols
+            anonymized_item = self._extract_non_pii(dict_item, 
+                                            additional_non_pii_cols=additional_non_pii_cols)
+            anonymized_list.append(anonymized_item)
+        return anonymized_list
 
     def _is_last_page(self, metadata):
         '''
@@ -196,10 +213,11 @@ class PrimeroAPI:
             page += 1
         return data
 
-    def _remove_record_pii(self, data_dict, additional_non_pii_cols: List = None):
+    def _extract_non_pii(self, data_dict, additional_non_pii_cols: List = None):
         """
-        Removes personally identifiable information (PII) from a dictionary.
+        Removes personally identifiable information (PII) from a dictionary by keeping only self.non_pii_cols.
 
+        You can set the non_pii_cols by using `self.et_non_pii_cols(["col", "col2", "col3"])`
         Args:
             data_dict (dict): The dictionary from which PII should be removed.
             custom_non_pii_cols (list, optional): Custom list of PII columns to remove. Defaults to None.
@@ -230,7 +248,7 @@ class PrimeroAPI:
         url = self.api_url + 'cases'
         return self._call_paginated_api(url)
 
-    def get_cases(self, anonymized=True, additional_non_pii_cols=[]):
+    def get_cases(self, anonymized=True, additional_non_pii_cols:List=None):
         """
         Fetches case data from the Primero API.
         anonymized: if True, removes personally identifiable information (PII) from the case data before returning it. 
@@ -238,75 +256,93 @@ class PrimeroAPI:
 
         See the property `self.non_pii_cols` for the default list of non-PII columns.
 
-        additional_non_pii_cons: Additional columns to whitelist from the case data.
+        additional_non_pii_cons: Additional columns to whitelist from the case API response
         
         Returns:
         List A list of case data retrieved from the API.
         """
-        
-        anonymized_cases =[]
         cases = self.get_cases_raw()
-        #logger.debug(cases)
         if anonymized:
-            for case in cases:
-                    # remove pii cols
-                case = self._remove_record_pii(case, 
-                                            additional_non_pii_cols=additional_non_pii_cols)
-                anonymized_cases.append(case)
-            # convert to pandas
+            anonymized_cases = self._anonymize_list(cases, additional_non_pii_cols=additional_non_pii_cols)
             return pd.DataFrame(anonymized_cases)
         # otherwise return the raw data
         return pd.DataFrame(cases)
 
-    def get_incidents(self):
+    def get_incidents_raw(self):
+        """
+        Fetches the list of incidents as they're returned by the API.  
+
+        Returns:
+            DataFrame: list of incidents fetched from the API
+        """
         url = self.api_url + 'incidents'
         return self._call_paginated_api(url)
 
-    def get_report_raw(self, id: int):
-        '''
-        Gets the report with the given id
+    def get_incidents(self, anonymized = True, additional_non_pii_cols:List=None):
+        """
+        Retrieve incidents data, by default anonymized.
+        Parameters:
+        -----------
+        anonymized : bool, optional
+            If True, the incidents data will be anonymized. Default is True.
+        additional_non_pii_cols : List, optional
+            A list of additional non-PII (Personally Identifiable Information) columns to include in the anonymized data. Default is None.
+        Returns:
+        --------
+        pd.DataFrame
+            A pandas DataFrame containing the incidents data. If `anonymized` is True, the data will be anonymized.
+        """
+    
+        incidents = self.get_incidents_raw()
+        if anonymized:
+            anonymized_incidents = self._anonymize_list(incidents, additional_non_pii_cols=additional_non_pii_cols)
+            return pd.DataFrame(anonymized_incidents)
+        return pd.DataFrame(incidents)
+        
+    def get_report_raw(self, report_id: int):
+        """
+        Gets the report with the given a report id
         returns a dictionary with the content of the report or None if there is an error.
+        """
 
-        '''
         url = self.api_url + 'reports/' + str(id)
-        logger.debug(f'id: {id}, get_report url={url}')
-        response = self.session.get(
-            url, headers=self.headers, auth=HTTPBasicAuth(self.user, self.password))
-        # check if response is successful
-        if response.status_code != 200:
-            logger.error(f'Failed to get report {response.status_code}: {response.text}, url: {url}')
-            return None
-        return response.json()['data']
+        logger.debug('report_id: %s, get_report url=%s', report_id, url)
+        return self._call_api_get(url)
 
     def get_report_list(self):
-        '''
-        Gets the list of reports for the given page and page_size. 
-        **Returns a dictionary** with the id as key and the report as value
+        """
+        **Returns a dictionary** with the report id as key and the report as value
         The content of the report is a dictionary
-        '''
+        If while fetching the report there is an error (f.i no data), the content of that id is None.
+        For example if there is an error in report 10, then 
+        ```
+            reports = primero.get_report_list()
+            reports[10]== None # True
+        ```
+        """
         url = self.api_url + 'reports'
         return self._call_paginated_api(url)
 
     def get_reports_raw(self):
-        '''
+        """"
         Gets the list of reports for the given page and page_size. 
         Returns a dictionary with the id as key and the report cibtebt in Dict format as value
         The content of the report is a dictionary
-        '''
+        """
         reports = {}
         report_list_dict = self.get_report_list()
         for id, report in report_list_dict.items():
             report = self.get_report(id)
-            # report is None if there is an error
+            # report is None if there is an error, we remove it from the list of reports.
             if report:
                 reports[id] = report['data']
         return reports
 
     def get_report(self, id: int, lang='en'):
-        '''
+        """"
         Gets the report with the given id
         returns a object of the Report class or None if there is an error.
-        '''
+        """
         logger.debug(f'get_report id={id}, lang={lang}')
         report_json_dict = self.get_report_raw(id)
         if report_json_dict is None:
