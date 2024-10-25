@@ -155,8 +155,6 @@ class PrimeroAPI:
         response = self.session.get(
             url, headers=self.headers, auth=HTTPBasicAuth(self.user, self.password))
         if response.status_code != 200:
-            print('error calling primero server: %s: %s, url: %s',
-                         response.status_code, response.text, url)
             logger.error('error calling primero server: %s: %s, url: %s',
                          response.status_code, response.text, url)
             return None
@@ -205,7 +203,6 @@ class PrimeroAPI:
             json_data = response.json()
             # extend the existing list to include new data
             data.extend(json_data['data'])
-            # print(json_data)
             # check if we are at the last page
             logger.debug('page=%s metadata=%s', page, json_data["metadata"])
             if self._is_last_page(json_data['metadata']):
@@ -305,48 +302,53 @@ class PrimeroAPI:
         returns a dictionary with the content of the report or None if there is an error.
         """
 
-        url = self.api_url + 'reports/' + str(id)
+        url = self.api_url + 'reports/' + str(report_id)
         logger.debug('report_id: %s, get_report url=%s', report_id, url)
         return self._call_api_get(url)
 
     def get_report_list(self):
         """
-        **Returns a dictionary** with the report id as key and the report as value
-        The content of the report is a dictionary
-        If while fetching the report there is an error (f.i no data), the content of that id is None.
-        For example if there is an error in report 10, then 
-        ```
-            reports = primero.get_report_list()
-            reports[10]== None # True
-        ```
+        Returns a list of reports.
+        The content of each report is a dictionary with some metadata.
         """
         url = self.api_url + 'reports'
         return self._call_paginated_api(url)
 
     def get_reports_raw(self):
         """"
-        Gets the list of reports for the given page and page_size. 
-        Returns a dictionary with the id as key and the report cibtebt in Dict format as value
+        Gets the list of reports for the given.
+
+        Returns a dictionary with the id as key and the report in Dict format as value
         The content of the report is a dictionary
+
+        If while fetching the report there is an error (f.i no data), the content of that id is None.
+        For example if there is an error in report 10, then 
+        ```
+            reports = primero.get_report_raw()
+            reports[10]== None # True
+        ```
+   
         """
         reports = {}
-        report_list_dict = self.get_report_list()
-        for id, report in report_list_dict.items():
-            report = self.get_report(id)
+        report_list= self.get_report_list()
+        for report in report_list:
+            report_id = report['id']
+            logger.debug(f'getting report {report_id}')
+            report = self.get_report_raw(report_id)
             # report is None if there is an error, we remove it from the list of reports.
             if report:
-                reports[id] = report['data']
+                reports[report_id] = report
         return reports
 
-    def get_report(self, id: int, lang='en'):
+    def get_report(self, report_id: int, lang='en'):
         """"
         Gets the report with the given id
         returns a object of the Report class or None if there is an error.
         """
-        logger.debug(f'get_report id={id}, lang={lang}')
-        report_json_dict = self.get_report_raw(id)
+        logger.debug(f'get_report id={report_id}, lang={lang}')
+        report_json_dict = self.get_report_raw(report_id)
         if report_json_dict is None:
-            logger.error(f'Did not get report {id}')
+            logger.error(f'Did not get report {report_id}')
             return None
         return Report(report_json_dict, lang)
 
@@ -360,7 +362,8 @@ class PrimeroAPI:
         for report in report_list:
             id = report['id']
             report = self.get_report(id, lang)
-            reports[id] = report
+            if report:
+                reports[id] = report
         return reports
 
     def get_lookups(self):
@@ -371,5 +374,5 @@ class PrimeroAPI:
     def get_server_version(self):
         url = self.api_url + 'contact_information'
         contact_information = self._call_api_get(url)
-        print (contact_information)
+        logger.debug('contact_information_full_response: %s', contact_information)
         return contact_information['system_version']

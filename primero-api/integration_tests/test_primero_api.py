@@ -27,6 +27,7 @@ def test_get_cases_raw(primero_api):
     cases = primero_api.get_cases_raw()
     assert cases is not None
     assert type(cases) is list
+    assert cases[0] is not None
 
 def test_get_cases(primero_api):
     cases = primero_api.get_cases()
@@ -48,6 +49,7 @@ def test_get_incidents(primero_api):
 def test_get_reports(primero_api):
     reports = primero_api.get_reports()
     assert reports is not None
+
 
 def test_get_version(primero_api):
     version = primero_api.get_server_version()
