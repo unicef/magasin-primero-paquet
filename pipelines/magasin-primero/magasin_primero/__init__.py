@@ -10,8 +10,10 @@ primero_user = EnvVar("PRIMERO_USER")
 primero_password = EnvVar("PRIMERO_PASSWORD")
 primero_api_url = EnvVar("PRIMERO_API_URL") # Should end with /
 
-# Create the resource 
-primero_api_resource = PrimeroAPIResource(primero_user=primero_user, primero_password=primero_password, primero_api_url=primero_api_url)
+# Create the API client resource 
+primero_api_resource = PrimeroAPIResource(primero_user=primero_user,
+                                          primero_password=primero_password,
+                                          primero_api_url=primero_api_url)
 
 defs = Definitions(
     assets=all_assets,
