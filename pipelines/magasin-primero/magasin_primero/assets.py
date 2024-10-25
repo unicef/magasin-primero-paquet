@@ -49,6 +49,6 @@ def reports(context: OpExecutionContext, primero_api: PrimeroAPIResource)-> Dict
         if report is None:
             continue
         with fs.open(f'/primero/report-{report.id}-{report.slug}/report.parquet','wb') as f:
-        report.to_pandas().to_parquet(f)
+            report.to_pandas().to_parquet(f)
         
     return reports
