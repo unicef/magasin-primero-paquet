@@ -46,7 +46,7 @@ def test_call_paginated_api(primero_api):
         assert data == [{'id': 1}, {'id': 2}, {'id': 3}, {'id': 4}]
 
 
-def test_remove_record_pii_default(primero_api):
+def test_extract_non_pii_default(primero_api):
     record_with_pii = {
         'name': 'John Doe', # PII 
         'date_of_birth': 'john.doe@example.com', # PII
@@ -57,10 +57,10 @@ def test_remove_record_pii_default(primero_api):
         'enabled': 'non_pii_value'
     }
 
-    result = primero_api._remove_record_pii(record_with_pii)
+    result = primero_api._extract_non_pii(record_with_pii)
     assert result == result_record_without_pii
 
-def test_remove_record_pii_custom_cols(primero_api):
+def test_extract_non_pii_custom_cols(primero_api):
     record_with_custom_non_pii = {
         'name': 'John Doe', # PII 
         'date_of_birth': 'john.doe@example.com', # PII
@@ -74,10 +74,10 @@ def test_remove_record_pii_custom_cols(primero_api):
         'custom_non_pii': 'custom_value' # Additional non-PII
     }
 
-    result = primero_api._remove_record_pii(record_with_custom_non_pii, additional_non_pii_cols=['custom_non_pii'])
+    result = primero_api._extract_non_pii(record_with_custom_non_pii, additional_non_pii_cols=['custom_non_pii'])
     assert result == result_record_with_custom_non_pii
 
-def test_remove_record_pii_custom_nonexistent_cols(primero_api):
+def test_extract_non_pii_custom_nonexistent_cols(primero_api):
     
     record_with_custom_non_pii = {
         'name': 'John Doe', # PII 
@@ -91,10 +91,10 @@ def test_remove_record_pii_custom_nonexistent_cols(primero_api):
         'enabled': 'non_pii_value', # Non-PII
     }
     # the additional_non_pii_cols do not exist and still does not break
-    result = primero_api._remove_record_pii(record_with_custom_non_pii, additional_non_pii_cols=['nonexistent_col'])
+    result = primero_api._extract_non_pii(record_with_custom_non_pii, additional_non_pii_cols=['nonexistent_col'])
     assert result == result_record_with_custom_nonexistent_pii
 
-def test_remove_record_pii_with_modified_non_pii_cols(primero_api):
+def test_extract_non_pii_with_modified_non_pii_cols(primero_api):
     record_with_pii = {
         'name': 'John Doe', # PII 
         'date_of_birth': 'john.doe@example.com', # PII
@@ -110,5 +110,5 @@ def test_remove_record_pii_with_modified_non_pii_cols(primero_api):
         'date_of_birth': 'john.doe@example.com', # PII
         'address_current': '123 Main St', # PII
     }
-    result = primero_api._remove_record_pii(record_with_pii)
+    result = primero_api._extract_non_pii(record_with_pii)
     assert result == result_record_without_pii
