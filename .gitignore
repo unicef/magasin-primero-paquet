@@ -7,3 +7,5 @@ primero_api.egg-info/
 .pytest_cache/
 tmp*/
 dist/
+dashboards/.DS_Store
+.DS_Store
