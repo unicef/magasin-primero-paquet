@@ -1,24 +1,24 @@
 import fsspec
 from pandas import DataFrame
-from dagster import asset
+from dagster import asset, OpExecutionContext
 from typing import Dict
 
 from primero_api import PrimeroAPI
 
 @asset
-def cases() -> DataFrame:
+def cases(context: OpExecutionContext) -> DataFrame:
   """ Retrieves cases from Primero API """
   # Load from API
   PRIMERO_USER= "primero"
   PRIMERO_PASSWORD='primer0!'
   PRIMERO_API_URL='http://localhost/api/v2/'
 
-  print("Setting up connection to Primero API... ")
   primero = PrimeroAPI(PRIMERO_USER, PRIMERO_PASSWORD, PRIMERO_API_URL)
-  print('Primero API library version', primero.version())
-  print('Primero Server version', primero.get_server_version())
+  # Check the version and connection to server is working
+  context.log.info(f"Primero API library version {primero.version()}")
+  context.log.info(f"Primero Server version {primero.get_server_version()}")
 
-  print("Getting cases... ")
+  context.log.info("Getting cases... ")
   df = primero.get_cases()
   print(df)
   fs= fsspec.filesystem('s3')
@@ -28,23 +28,20 @@ def cases() -> DataFrame:
 
 
 @asset
-def incidents() -> DataFrame:
-  """ Retrieves cases from Primero API """
+def incidents(context: OpExecutionContext) -> DataFrame:
+  """ Retrieves incidents from Primero API """
   # Load from API
   PRIMERO_USER= "primero"
-  PRIMERO_PASSWORD='primer0!'
-  PRIMERO_API_URL='http://localhost/api/v2/'
+  PRIMERO_PASSWORD="primer0!"
+  PRIMERO_API_URL="http://localhost/api/v2/"
 
-  print("Setting up connection to Primero API... ")
+
   primero = PrimeroAPI(PRIMERO_USER, PRIMERO_PASSWORD, PRIMERO_API_URL)
-  print('Primero API library version', primero.version())
-  print('Primero Server version', primero.get_server_version())
-
-  print("Getting cases... ")
+  context.log.info("Getting incidents... ")
   df = primero.get_incidents()
   print(df)
   fs= fsspec.filesystem('s3')
-  with fs.open('/primero/cases/cases.parquet','wb') as f:
+  with fs.open('/primero/incidents/incidents.parquet','wb') as f:
     df.to_parquet(f)
   return df
 
