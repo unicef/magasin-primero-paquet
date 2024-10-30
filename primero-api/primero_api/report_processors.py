@@ -7,6 +7,26 @@ from .logger import logger
 # Utility tools for processing reports
 #
 
+def report_description(report, lang='en'):
+    '''
+    Returns the name for the report in the given language.
+    If the report does not have a name, it returns ''
+    if the language is not in the name, it returns the english description
+    if the english description is not available, it returns ''
+    '''
+    # check if report has a name
+    if 'description' not in report:
+        return ''
+    # check if the language is in the name
+    if lang not in report['description']:
+        # check if english is in the name
+        if 'en' not in report['description']:
+            return ''
+        lang = 'en'
+    return report['description'][lang]
+
+    
+
 def report_name(report, lang='en'):
     '''
     Returns the name for the report in the given language.
@@ -58,7 +78,9 @@ def find_key_in_dict(nested_dict, key):
 
 def get_report_labels(report, lang='en'):
     '''
-    Returns the labels for the report in the format 
+    Returns the labels for the report in the format (data contained in option_labels, in the original api response)
+    Some reports may not contain labels, in that case it returns an empty dictionary
+
         label[id] = display_text
     '''
     all_labels=find_key_in_dict(report, 'option_labels')
@@ -104,7 +126,7 @@ def process_report(report, lang='en'):
         # return empty dataframe if there is no report data
         return pd.DataFrame()
     
-    labels = get_report_labels(report)
+    labels = get_report_labels(report, lang)
     # Example of report_data
     #
     #  report_data: {

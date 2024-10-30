@@ -74,7 +74,7 @@ def test_extract_non_pii_custom_cols(primero_api):
         'custom_non_pii': 'custom_value' # Additional non-PII
     }
 
-    result = primero_api._extract_non_pii(record_with_custom_non_pii, additional_non_pii_cols=['custom_non_pii'])
+    result = primero_api._extract_non_pii(record_with_custom_non_pii, additional_data=['custom_non_pii'])
     assert result == result_record_with_custom_non_pii
 
 def test_extract_non_pii_custom_nonexistent_cols(primero_api):
@@ -90,8 +90,8 @@ def test_extract_non_pii_custom_nonexistent_cols(primero_api):
     result_record_with_custom_nonexistent_pii = {
         'enabled': 'non_pii_value', # Non-PII
     }
-    # the additional_non_pii_cols do not exist and still does not break
-    result = primero_api._extract_non_pii(record_with_custom_non_pii, additional_non_pii_cols=['nonexistent_col'])
+    # the additional_data do not exist and still does not break
+    result = primero_api._extract_non_pii(record_with_custom_non_pii, additional_data=['nonexistent_col'])
     assert result == result_record_with_custom_nonexistent_pii
 
 def test_extract_non_pii_with_modified_non_pii_cols(primero_api):
@@ -112,3 +112,34 @@ def test_extract_non_pii_with_modified_non_pii_cols(primero_api):
     }
     result = primero_api._extract_non_pii(record_with_pii)
     assert result == result_record_without_pii
+
+
+def test_get_cases_raw(primero_api):
+    # Mock the response for get_cases_raw
+    response_data = {
+        'data': [{'id': 1}, {'id': 2}],
+        'metadata': {'page': 1, 'total': 2, 'per': 2}
+    }
+
+    with requests_mock.Mocker() as m:
+        m.get('http://test.api/cases', json=response_data)
+        data = primero_api.get_cases_raw()
+    
+        assert len(data) == 2
+        assert data == [{'id': 1}, {'id': 2}]
+
+# Get incidents 
+def test_get_incidents_raw(primero_api):
+    # Mock the response for get_incidents_raw
+    response_data = {
+        'data': [{'id': 1}, {'id': 2}],
+        'metadata': {'page': 1, 'total': 2, 'per': 2}
+    }
+
+    with requests_mock.Mocker() as m:
+        m.get('http://test.api/incidents', json=response_data)
+        data = primero_api.get_incidents_raw()
+    
+        assert len(data) == 2
+        assert data == [{'id': 1}, {'id': 2}]
+

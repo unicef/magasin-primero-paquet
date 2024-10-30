@@ -118,12 +118,12 @@ class PrimeroAPI:
         """
         self.non_pii_cols = col_names
     
-    def _anonymize_list(self, list_with_pii, additional_non_pii_cols:List = None):
+    def _anonymize_list(self, list_with_pii, additional_data:List = None):
         """
         Anonymizes a list of dictionaries by removing personally identifiable information (PII).
         Args:
             list_with_pii (list): A list of dictionaries containing PII.
-            additional_non_pii_cols (List, optional): A list of additional non-PII columns to retain in the anonymized dictionaries. Defaults to None.
+            additional_data (List, optional): A list of additional non-PII columns to retain in the anonymized dictionaries. Defaults to None.
         Returns:
             list: A list of dictionaries with PII removed.
         """
@@ -131,7 +131,7 @@ class PrimeroAPI:
         for dict_item in list_with_pii:
             # remove pii cols
             anonymized_item = self._extract_non_pii(dict_item, 
-                                            additional_non_pii_cols=additional_non_pii_cols)
+                                            additional_data=additional_data)
             anonymized_list.append(anonymized_item)
         return anonymized_list
 
@@ -210,7 +210,7 @@ class PrimeroAPI:
             page += 1
         return data
 
-    def _extract_non_pii(self, data_dict, additional_non_pii_cols: List = None):
+    def _extract_non_pii(self, data_dict, additional_data: List = None):
         """
         Removes personally identifiable information (PII) from a dictionary by keeping only self.non_pii_cols.
 
@@ -224,8 +224,8 @@ class PrimeroAPI:
             dict: The dictionary with PII and additional columns removed.
         """
         non_pii_cols = self.non_pii_cols.copy()
-        if additional_non_pii_cols:
-            non_pii_cols.extend(additional_non_pii_cols)
+        if additional_data:
+            non_pii_cols.extend(additional_data)
         
         for key in list(data_dict.keys()):
             if key not in non_pii_cols:
@@ -245,11 +245,11 @@ class PrimeroAPI:
         url = self.api_url + 'cases'
         return self._call_paginated_api(url)
 
-    def get_cases(self, anonymized=True, additional_non_pii_cols:List=None):
+    def get_cases(self, anonymized=True, additional_data:List=None):
         """
         Fetches case data from the Primero API.
         anonymized: if True, removes personally identifiable information (PII) from the case data before returning it. 
-        additional_non_pii_cols: Additional columns to whitelist from the case data. This is useful if you need any column that is not whitelisted by default.`
+        additional_data: Additional columns to whitelist from the case data. This is useful if you need any column that is not whitelisted by default.`
 
         See the property `self.non_pii_cols` for the default list of non-PII columns.
 
@@ -260,7 +260,7 @@ class PrimeroAPI:
         """
         cases = self.get_cases_raw()
         if anonymized:
-            anonymized_cases = self._anonymize_list(cases, additional_non_pii_cols=additional_non_pii_cols)
+            anonymized_cases = self._anonymize_list(cases, additional_data=additional_data)
             return pd.DataFrame(anonymized_cases)
         # otherwise return the raw data
         return pd.DataFrame(cases)
@@ -275,14 +275,14 @@ class PrimeroAPI:
         url = self.api_url + 'incidents'
         return self._call_paginated_api(url)
 
-    def get_incidents(self, anonymized = True, additional_non_pii_cols:List=None):
+    def get_incidents(self, anonymized = True, additional_data:List=None):
         """
         Retrieve incidents data, by default anonymized.
         Parameters:
         -----------
         anonymized : bool, optional
             If True, the incidents data will be anonymized. Default is True.
-        additional_non_pii_cols : List, optional
+        additional_data : List, optional
             A list of additional non-PII (Personally Identifiable Information) columns to include in the anonymized data. Default is None.
         Returns:
         --------
@@ -292,7 +292,7 @@ class PrimeroAPI:
     
         incidents = self.get_incidents_raw()
         if anonymized:
-            anonymized_incidents = self._anonymize_list(incidents, additional_non_pii_cols=additional_non_pii_cols)
+            anonymized_incidents = self._anonymize_list(incidents, additional_data=additional_data)
             return pd.DataFrame(anonymized_incidents)
         return pd.DataFrame(incidents)
         

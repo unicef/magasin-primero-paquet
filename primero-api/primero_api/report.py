@@ -1,5 +1,5 @@
 
-from .report_processors import process_report, report_name, report_slug, get_report_labels
+from .report_processors import process_report, report_name, report_slug, get_report_labels, report_description
 from .logger import logger
 
 class Report:
@@ -24,6 +24,7 @@ class Report:
         
         self.slug = report_slug(report_data_dict, lang)
         self.name = report_name(report_data_dict, lang)
+        self.description = report_description(report_data_dict, lang)
         
     def __str__(self):
         return f'Report {self.id} ({self.name})'    
