@@ -19,7 +19,7 @@ Magasin is a foundational toolset designed to help data analysis teams uncover v
 In order to get the full potential, ie. to have a full dashboard, you need to have:
 
 - [A magasin instance](https://magasin.unicef.io/get-started/). For testing purposes you can install magasin in a regular computer.
-- Credentials to log into a Primero 2.x instance.
+- Credentials to log into a Primero 2.x instance. For testing you can get them from the demo instance clicking on the [Try button on the top right corner](https://support.primero.org/).
 
 Experience with command line and python programming language may be useful. 
 
