@@ -1,6 +1,10 @@
 # magasin-primero-paquet - Unlock the Full Potential of Your Primero Data
 
-This repository contains the code to ingest, store, analyze and visualize data from [Primero](https://www.primero.org), the open-source child protection case management system, using [magasin](https://magasin.unicef.io).
+![/images/magasin-primero.png](./images/magasin-primero.png)
+
+This repository allows you to visualize in a beautiful dashboard your data from [Primero](https://www.primero.org), the open-source child protection case management system, using [magasin](https://magasin.unicef.io).
+
+This is a _paquet_ for magasin is a collection of code and configurations that allows you to extract, analyze, and visualize data from Primero.
 
 As a result of setting up this _paquet_ you will have a dashboard with insights about the cases and incidents of primero that gets fresh data from your Primero instance every day. 
 
@@ -12,11 +16,13 @@ Alternatively, if you want do data explorations with the data extracted from Pri
 
 Magasin is a foundational toolset designed to help data analysis teams uncover valuable insights. It enables organizations to extract, analyze, and visualize data from multiple sources. As the only complete, open-source, cloud-based data and AI toolset, Magasin grows with your organization, empowering you to make better decisions with clear and impactful insights throughout your digital transformation journey. 
 
+Magasin is a certified [Digital Public Good (DPG)](https://github.com/unicef/magasin/discussions/103).
+
 👉 **[Learn more about magasin](https://magasin.unicef.io/)**
 
 ## Pre-requisites
 
-In order to get the full potential, ie. to have a full dashboard, you need to have:
+In order to extract the full potential of this integration, ie. to have a full dashboard, you need to have:
 
 - [A magasin instance](https://magasin.unicef.io/get-started/). For testing purposes you can install magasin in a regular computer.
 - Credentials to log into a Primero 2.x instance. For testing you can get them from the demo instance clicking on the [Try button on the top right corner](https://support.primero.org/).
