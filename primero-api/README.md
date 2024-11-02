@@ -68,26 +68,32 @@ cases = primero.get_cases()
 incidents = primero.get_incidents()
 ```
 
-By default the client will return the data in a pandas DataFrame format and by default data is ANONYMIZED, that is only a subset of the information stored in the case and incident is processed.
-This is done to protect the privacy of the individuals in the system and prevent the leakage of sensitive information.
+By default the client will return the data in a pandas **DataFrame** format. Data is ANONYMIZED, that is, no personal identifiable information, and only a subset of the information stored in the primero case / incident is returned.
 
-If there is some data that you need for your use case, you can use `additional_fields` to be included as part of the data.
+Primero manages sensitive personal information, so this approach follows **privacy by design principle**.  
+
+#### Additional fields and disabling anonymization
+
+The fields that are retrieved by default are kept in the property `non_pii_cols`
 
 ```python
+print(primero.non_pii_cols)
+```
 
-# Get cases with anonymization disabled, this will return all the fields in the case
+If there is some data point that you need for your use case, you can use `additional_fields` option to get it. For example:
+
+```python
+# Get cases with additional fields
 cases = primero.get_cases(additional_fields=['name','date_of_birth'])
 incidents = primero.get_incidents(additional_fields=['name','date_of_birth'])
 ```
 
-You can even fully disable the anonymization by setting `anonymize=False` in the `get_cases` method.
+You can even fully disable the anonymization by setting `anonymize=False` in the `get_cases`/`get_incidents` method.
 
 ```python
 cases = primero.get_cases(anonymize=False)
 incidents = primero.get_incidents(anonymize=False)
 ```
-
-
 
 Lastly, you can also get the raw data as a dictionary:
 
@@ -98,6 +104,7 @@ cases = primero.get_cases_raw()
 # Get incidents
 incidents = primero.get_incidents_raw()
 ```
+In this case the data is returned is the resulting dict with the converted JSON provided by the API. 
 
 
 ### Interact with the reports
