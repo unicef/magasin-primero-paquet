@@ -5,4 +5,4 @@ FROM python:3.12-slim
 COPY . /
 
 # Install all the dependencies of the module within the container
-RUN pip install .
+RUN pip install --no-cache-dir .
