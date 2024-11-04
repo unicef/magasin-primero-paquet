@@ -5,10 +5,12 @@ setup(
     packages=find_packages(exclude=["magasin_primero_tests"]),
     install_requires=[
         "dagster",
-        "dagster-cloud"
+        "dagster-cloud",
+        "dagster-postgres",
         "pandas",
         "fsspec",  
-        "s3fs", 
+        "s3fs",
+        "adlfs", 
         "primero-api"
     ],
     extras_require={"dev": ["dagster-webserver", "pytest"]},
