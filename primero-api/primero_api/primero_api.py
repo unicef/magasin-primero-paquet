@@ -12,7 +12,7 @@ from typing import List
 from .logger import logger
 
 from .report import Report
-from .version import VERSION
+from .version import get_version
 
 NON_PII_COLS = ['enabled',
                 'age',
@@ -105,7 +105,7 @@ class PrimeroAPI:
 
     def version(self):
         ''' Returns the version of the API library'''
-        return VERSION
+        return get_version()
 
     def set_non_pii_cols(self, col_names=[]):
         """ Sets the whitelist of NON personal identifiable information columns
