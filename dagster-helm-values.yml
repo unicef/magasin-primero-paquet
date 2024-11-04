@@ -1,7 +1,7 @@
 dagster-user-deployments:
   enabled: true
   deployments:
-    - name: "dpga-pipeline-k8s"
+    - name: "magasin-primero-pipeline-k8s"
       image:
         # change this with the image you want to deploy
         repository: "merlos/magasin-primero-pipeline"
@@ -12,6 +12,6 @@ dagster-user-deployments:
         - "magasin_primero"
       port: 3030
       envSecrets:
-        - name: magasin-primero-secret
+        - name: magasin-primero-pipeline-secret
       includeConfigInLaunchedRuns:
         enabled: true
