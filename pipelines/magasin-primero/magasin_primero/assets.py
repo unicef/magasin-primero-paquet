@@ -1,13 +1,11 @@
 import fsspec
 from pandas import DataFrame
-from dagster import asset, OpExecutionContext
+from dagster import asset, asset_check, OpExecutionContext, AssetCheckResult
 from typing import Dict
-
-from primero_api import PrimeroAPI
 
 from .resources import PrimeroAPIResource
 
-@asset
+@asset(description="Extracts all the cases from the primero instance. NO personal information is included in the output.")
 def cases(context: OpExecutionContext, primero_api: PrimeroAPIResource) -> DataFrame:
     """ Retrieves cases from Primero API """
 
@@ -17,17 +15,34 @@ def cases(context: OpExecutionContext, primero_api: PrimeroAPIResource) -> DataF
 
     context.log.info("Getting cases... ")
     df = primero_api.get_cases()
-    print(df)
+    #print(df)
     fs= fsspec.filesystem('s3')
     with fs.open('/primero/cases/cases.parquet','wb') as f:
         df.to_parquet(f)
     return df
 
+#
+# Asset checks allow to validate the data that is being produced by the asset
+#
+# https://docs.dagster.io/concepts/assets/asset-checks/define-execute-asset-checks
+# https://docs.dagster.io/_apidocs/asset-checks#dagster.AssetCheckResult
+#
+@asset_check(asset=cases,
+             description="Check if cases has at least one case")
+def cases_num_check(cases: DataFrame) -> AssetCheckResult:
+    rows = cases.shape[0]
+    return AssetCheckResult(passed=rows > 1, metadata={"num_cases": rows})
 
-@asset
+
+
+@asset(description="Extracts all the incidents from the primero instance. NO personal information is included in the output.")
 def incidents(context: OpExecutionContext, primero_api: PrimeroAPIResource) -> DataFrame:
-    """ Retrieves incidents from Primero API saves them in storage"""
+
     context.log.info("Getting incidents... ")
+    # Get incidents method by default returns a PII free dataframe.
+    # https://github.com/unicef/magasin-primero-paquet/tree/main/primero-api
+    # In particular 
+    # https://github.com/unicef/magasin-primero-paquet/tree/main/primero-api#interact-with-cases-and-the-incidents
     df = primero_api.get_incidents()
 
     fs= fsspec.filesystem('s3')
@@ -35,6 +50,12 @@ def incidents(context: OpExecutionContext, primero_api: PrimeroAPIResource) -> D
         df.to_parquet(f)
     return df
 
+
+@asset_check(asset=incidents,
+             description="Check if cases has at least one incident")
+def incidents_num_check(incidents: DataFrame) -> AssetCheckResult:
+    rows = incidents.shape[0]
+    return AssetCheckResult(passed=rows > 1, metadata={"num_incidents": rows})
 
 
 @asset
