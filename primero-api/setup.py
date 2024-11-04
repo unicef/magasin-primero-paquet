@@ -12,6 +12,7 @@ setup(
         'requests-cache',
         'requests-ratelimiter',
         'pandas',
+        'pyarrow',
         'python-slugify',
     ],
     # development dependencies
