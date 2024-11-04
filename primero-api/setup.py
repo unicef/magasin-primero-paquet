@@ -1,10 +1,11 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.2.3'
+def get_version():
+    return (open('primero_api/VERSION').read().strip())
 
 setup(
     name='primero-api',
-    version=VERSION,
+    version=get_version(),
     packages=find_packages(),
     install_requires=[
         # List your dependencies here
