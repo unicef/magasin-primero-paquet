@@ -1,0 +1,7 @@
+.env
+build.sh
+primero.cache
+tmp*
+__pycache__
+.pytest_cache
+.dockerignore
