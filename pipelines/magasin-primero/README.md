@@ -74,7 +74,7 @@ In the source code of `assets.py` here are three [dagster assets](https://docs.d
 
 * `cases` that gets all the cases in the /<BUCKET_NAME>/cases/cases.parquet
 * `incidents` that gets all the incidents in the /<BUCKET_NAME>/incidents/incidents.parquet
-* `reports` that gets all the reports in the /<BUCKET_NAME>/reports/report-<report_id>.parquet
+* `reports` that gets all the reports in the /<BUCKET_NAME>/reports/report-{report.id}-{report.slug}/report.parquet'
 
 There is a resource called `primero_api_resource` which basically instantiates a PrimeroAPI object of the [`primero-api` library](../../primero-api/).
 
