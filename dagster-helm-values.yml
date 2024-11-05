@@ -4,9 +4,9 @@ dagster-user-deployments:
     - name: "magasin-primero-pipeline-k8s"
       image:
         # change this with the image you want to deploy
-        repository: "merlos/magasin-primero-pipeline"
-        #tag: latest
-        tag: "0.0.4"
+        repository: "ghcr.io/unicef/magasin-primero-pipeline"
+        tag: latest
+        #tag: "0.0.4"
         pullPolicy: Always
       dagsterApiGrpcArgs:
         - "--package-name"

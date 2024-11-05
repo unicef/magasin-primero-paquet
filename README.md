@@ -60,7 +60,7 @@ And you should see something like this:
 [ i ] magasin installer for a MacOS system (Darwin)
 [ ✓ ] kubectl installed (/opt/homebrew/bin/kubectl)
 [ ✓ ] helm installed (/opt/homebrew/bin/helm)
-[ ✓ ] pip3 installed (/Users/jmerlostevar/.pyenv/shims/pip3)
+[ ✓ ] pip3 installed (/Users/username/.pyenv/shims/pip3)
 [ ✓ ] mc installed (/opt/homebrew/bin/mc)
 [ ✓ ] mag installed (/opt/homebrew/bin/mag)
 
@@ -176,8 +176,7 @@ Ok, you already setup the environment variables, now you need to upload the pipe
 Assuming you already have magasin-dagster installed in your kubernetes cluster (ie. you ran `magasin-install.sh`)
 
 ```sh
-helm upgrade dagster magasin/dagster --namespace
- magasin-dagster -f ./dagster-helm-values.yml 
+helm upgrade dagster magasin/dagster --namespace magasin-dagster -f ./dagster-helm-values.yml 
 ```
 You should sees something like this:
 ```sh
