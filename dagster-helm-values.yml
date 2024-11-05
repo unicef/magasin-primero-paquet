@@ -6,7 +6,6 @@ dagster-user-deployments:
         # change this with the image you want to deploy
         repository: "ghcr.io/unicef/magasin-primero-pipeline"
         tag: latest
-        #tag: "0.0.4"
         pullPolicy: Always
       dagsterApiGrpcArgs:
         - "--package-name"
