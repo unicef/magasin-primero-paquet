@@ -1,5 +1,5 @@
 import pytest
-
+import re
 from primero_api import PrimeroAPI
 import requests_mock
 
@@ -143,3 +143,8 @@ def test_get_incidents_raw(primero_api):
         assert len(data) == 2
         assert data == [{'id': 1}, {'id': 2}]
 
+
+def test_version(primero_api):
+    version = primero_api.version()
+    assert isinstance(version, str)
+    assert re.match(r'^\d+\.\d+\.\d+$', version)
