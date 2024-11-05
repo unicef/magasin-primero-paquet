@@ -11,3 +11,6 @@ dashboards/.DS_Store
 .DS_Store
 primero-api/integration_env.conf
 primero-api/.coverage
+build/
+# remove all the .egg-info folders
+pipelines/magasin-primero/magasin_primero.egg-info/

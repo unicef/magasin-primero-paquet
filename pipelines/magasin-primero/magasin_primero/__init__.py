@@ -5,6 +5,16 @@ from .resources import PrimeroAPIResource
 from . import assets
 from dagster import load_asset_checks_from_modules
 from dagster import ScheduleDefinition, DefaultScheduleStatus, AssetSelection
+from .version import __version__, print_cool_banner
+
+
+# This will displayed on the logs of the pod when loaded
+environment = os.getenv("ENVIRONMENT")
+print_cool_banner()
+print('-------------------------------------------------')
+print(f'Pipeline Version: {__version__}')
+print(f'ENVIRONMENT={environment}')
+print('-------------------------------------------------')
 
 # Load all assets from the assets module
 all_assets = load_assets_from_modules([assets], group_name="primero")
@@ -20,14 +30,6 @@ primero_api_url = EnvVar("PRIMERO_API_URL") # Should end with /
 primero_api_resource = PrimeroAPIResource(primero_user=primero_user,
                                           primero_password=primero_password,
                                           primero_api_url=primero_api_url)
-
-
-environment = os.getenv("ENVIRONMENT")
-
-print("****************** Environment")
-print(environment)
-print("****************** Environment")
-
 
 # Default schedule for the job every day at midnight
 schedule = ScheduleDefinition(

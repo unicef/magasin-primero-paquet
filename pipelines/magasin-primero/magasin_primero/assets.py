@@ -2,7 +2,6 @@ import fsspec
 from pandas import DataFrame
 from dagster import asset, asset_check, OpExecutionContext, AssetCheckResult
 from typing import Dict
-
 from .resources import PrimeroAPIResource
 
 @asset(description="Extracts all the cases from the primero instance. NO personal information is included in the output.")
@@ -12,10 +11,11 @@ def cases(context: OpExecutionContext, primero_api: PrimeroAPIResource) -> DataF
     # Check the version and connection to server is working
     context.log.info(f"Primero API library version {primero_api.version()}")
     context.log.info(f"Primero Server version {primero_api.get_server_version()}")
-
+    context.log.info(f"Primero Server URL {primero_api.api_url}")
     context.log.info("Getting cases... ")
     df = primero_api.get_cases()
     #print(df)
+    
     fs= fsspec.filesystem('s3')
     with fs.open('/primero/cases/cases.parquet','wb') as f:
         df.to_parquet(f)
@@ -69,7 +69,7 @@ def reports(context: OpExecutionContext, primero_api: PrimeroAPIResource)-> Dict
     for report in reports.values():  
         if report is None:
             continue
-        with fs.open(f'/primero/report-{report.id}-{report.slug}/report.parquet','wb') as f:
+        with fs.open(f'/primero/reports/report-{report.id}-{report.slug}/report.parquet','wb') as f:
             report.to_pandas().to_parquet(f)
         
     return reports

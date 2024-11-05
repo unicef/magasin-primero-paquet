@@ -47,14 +47,66 @@ Additionally
 
 ## Installation
 
-In the computer from which you want to perform the installation of the `magasin-primero-paquet` you need to have also installed `kubectl` and `mag-cli`. You can use the following commands to install them:
+In the computer from which you want to perform the installation of the `magasin-primero-paquet` you need to have also installed the tools used by a magasin administrator. 
+
+To check if you have them installed you can use the following command:
+
+```shell
+ curl -sSL https://magasin.unicef.io/install-magasin.sh | bash -s -- -c 
+ ```
+And you should see something like this:
+
+```shell
+[ i ] magasin installer for a MacOS system (Darwin)
+[ ✓ ] kubectl installed (/opt/homebrew/bin/kubectl)
+[ ✓ ] helm installed (/opt/homebrew/bin/helm)
+[ ✓ ] pip3 installed (/Users/jmerlostevar/.pyenv/shims/pip3)
+[ ✓ ] mc installed (/opt/homebrew/bin/mc)
+[ ✓ ] mag installed (/opt/homebrew/bin/mag)
+
+[ ✓ ] All dependencies are installed.
+```
+
+If there is any component missing you can install it using the following command:
 
 ```shell
 # Debian/Ubuntu / Windows WSL
-curl -sSL http://magasin.unicef.io/install-magasin.sh | bash -s -- -i 
+curl -sSL https://magasin.unicef.io/install-magasin.sh | bash -s -- -i 
 # MacOS
-curl -sSL http://magasin.unicef.io/install-magasin.sh | zsh -s -- -i 
+curl -sSL https://magasin.unicef.io/install-magasin.sh | zsh -s -- -i 
 ```
+If any of them fails to be installed using the script, try to install them manually.
+
+Ensure kubectl is pointing to the right cluster:
+
+```shell
+ kubectl get namespaces
+ ```
+You should see the namespaces of magasin
+
+```sh
+NAME               STATUS   AGE
+default            Active   84d
+kube-node-lease    Active   84d
+kube-public        Active   84d
+kube-system        Active   84d
+magasin-dagster    Active   13d
+magasin-dagster    Active   13d
+magasin-daskhub    Active   13d
+magasin-drill      Active   13d
+magasin-operator   Active   13d
+magasin-tenant     Active   13d
+magasin-superset   Active   13d
+```
+
+Then clone this repository:
+
+```shell
+git clone https://github.com/unicef/magasin-primero-paquet
+cd magasin-primero-paquet
+```
+
+Now, let's install the _paquet_ in your magasin instance. 
 
 ## Step 1 - Setup the storage
 
@@ -67,23 +119,107 @@ By default magasin includes MinIO. To create a MinIO bucket you can use the foll
 mag minio add bucket --bucket-name primero
 ```
 
-## Step 2 - Setup the data ingestion pipeline.
+```sh
+Create Bucket
+forward_port command: kubectl port-forward --address=0.0.0.0 --namespace magasin-tenant svc/myminio-hl 9000:9000
+Waiting for port to be open...
+Port ready.
+mc command: mc admin info myminio --insecure
+alias check successful
+mc command:mc mb myminio/primero2 --insecure
+Bucket created successfully `myminio/primero2`.
+```
 
-    TODO - Add the instructions to setup the pipeline
+To list the content of the bucket using the following command:
 
+```shell
+mc ls myminio/primero 
+```
+It should be empty at this point.
+
+
+## Step 2 - Setup the pipeline
+
+The pipeline is a [Dagster](https://dagster.io/) pipeline that extracts data from Primero and stores it in the cloud storage.
+
+Dagster is a framework that allows you to extract data from multiple sources, transform it and load it into multiple destinations giving you some builtin tools to monitor the pipeline and debug it. 
+
+The pipeline extracts the cases, incidents and reports from a primero instance and store it in a [parquet file](https://parquet.apache.org/) in the cloud storage. Parquet is a file format that is optimized for data analysis.
+
+
+
+You need to have docker running and have logged in into the container registry where you'll upload the image.
+
+
+### Setup the secrets
+
+For security reasons, it is recommended to use environment variables to store the credentials to access the Primero API and the cloud storage.  
+
+Update the values with your own information
+
+```sh
+kubectl create secret generic magasin-primero-pipeline-secret \
+  --namespace magasin-dagster \
+  --from-literal=PRIMERO_USER='primero_cp' \
+  --from-literal=PRIMERO_PASSWORD='primero2024' \
+  --from-literal=PRIMERO_API_URL='http://playground.primerodev.org/api/v2/' \
+  --from-literal=FSSPEC_S3_ENDPOINT_URL=http://myminio-ml.magasin-tenant.svc.cluster.local \
+  --from-literal=FSSPEC_S3_KEY='minio' \
+  --from-literal=FSSPEC_S3_SECRET='minio123'
+```
+
+
+### Add the pipeline to your dagster instance.
+
+Ok, you already setup the environment variables, now you need to upload the pipeline to your dagster instance.
+
+Assuming you already have magasin-dagster installed in your kubernetes cluster (ie. you ran `magasin-install.sh`)
+
+```sh
+helm upgrade dagster magasin/dagster --namespace
+ magasin-dagster -f ./dagster-helm-values.yml 
+```
+You should sees something like this:
+```sh
+Release "dagster" has been upgraded. Happy Helming!
+NAME: dagster
+LAST DEPLOYED: Mon Nov  4 11:37:56 2024
+NAMESPACE: magasin-dagster
+STATUS: deployed
+REVISION: 2
+TEST SUITE: None
+NOTES:
+Launched. You can access the Dagster webserver/UI by running the following commands:
+
+export DAGSTER_WEBSERVER_POD_NAME=$(kubectl get pods --namespace magasin-dagster -l "app.kubernetes.io/name=dagster,app.kubernetes.io/instance=dagster,component=dagster-webserver" -o jsonpath="{.items[0].metadata.name}")
+echo "Visit http://127.0.0.1:8080 to open the Dagster UI"
+kubectl --namespace magasin-dagster port-forward $DAGSTER_WEBSERVER_POD_NAME 8080:80
+```
+
+Note: If you did not run the magasin installer, and want to run the pipeline in the cluster:
+    ```sh
+    helm repo add magasin https://unicef.github.io/magasin/
+    helm install dagster magasin/dagster --namespace
+    magasin-dagster -f ./dagster-helm-values.yml --create-namespace
+    ```
+
+
+## 2.1 Run the pipeline for testing it is working
 
 Check the content of the bucket using the following command:
 
 ```shell
 mc ls myminio/primero 
 ```
+
 You can copy them locally and check the content:
 
 ```shell
 mc cp myminio/primero .
 ```
 
-We use [parquet files](https://parquet.apache.org/) to store the data extracted from Primero. To see the content of this files you can use [parquet viewer in Windows](https://github.com/mukunku/ParquetViewer) and [Tad in OSX, Linux and Windows](https://www.tadviewer.com/)
+As mentioned earlier We  use [parquet files](https://parquet.apache.org/) to store the data extracted from Primero. To see the content of this files you can use [parquet viewer (Windows)](https://github.com/mukunku/ParquetViewer) or [Tad (OSX, Linux and Windows)](https://www.tadviewer.com/)
+
 
 
 ## Step 3 - Setup the dashboard
@@ -91,6 +227,57 @@ We use [parquet files](https://parquet.apache.org/) to store the data extracted 
 Once you have the data in the cloud storage you can setup the dashboard to visualize the data. 
 
     TODO - Add the instructions to setup the dashboard
+
+
+
+## Troubleshooting 
+
+Check if the pipeline pod was loaded:
+
+```sh
+kubectl get pods --namespace  magasin-dagster
+```
+```sh
+NAME                                                              READY   STATUS                   RESTARTS   AGE
+dagster-daemon-59c9d6c6c-nxfvq                                    1/1     Running                  0          8m25s
+dagster-dagster-user-deployments-magasin-primero-pipeline-6f7nb   0/1     ContainerStatusUnknown   0          8m25s
+dagster-dagster-user-deployments-magasin-primero-pipeline-gpv85   0/1     Pending                  0          39s
+dagster-dagster-webserver-c8bf5f74b-b8nss                         1/1     Running                  0          8m25s
+dagster-postgresql-0                                              1/1     Running                  0          8m25s
+```
+
+Then you can inspect the pod 
+```sh
+kubectl describe pod  dagster-dagster-user-deployments-magasin-primero-pipeline-gpv85  --namespace magasin-dagster
+```
+And take a look at the events section
+```sh
+...
+...
+...
+Events:
+  Type     Reason            Age   From               Message
+  ----     ------            ----  ----               -------
+  Warning  FailedScheduling  4m5s  default-scheduler  0/1 nodes are available: 1 node(s) had untolerated taint {node.kubernetes.io/disk-pressure: }. preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling.
+```
+In this case the node had issues with disk pressure.  You can search on the internet on the particulars of the error message.
+
+
+You can check the values of the secrets to check it has been created properly:
+
+```sh
+kubectl get secret magasin-primero-pipeline-secret -n magasin-dagster -o jsonpath='{.data.FSSPEC_S3_ENDPOINT_URL}' | base64 --decode
+```
+
+## Development
+
+There are two main components that you can develop in this repository:
+
+* ** primero-api ** See instructions in the [primero-api/README.md](./primero-api/README.md)
+* ** pipelines/magasin-primero ** See instructions in the [pipelines/magasin_primero/README.md](./pipelines/magasin_primero/README.md)   
+
+We created a mini tutorial on [how to install primero in docker](./how-to-install-primero-in-docker.md), which is useful for testing both.
+
 
 # LICENSE
 This repository is licensed under the MIT License. 
