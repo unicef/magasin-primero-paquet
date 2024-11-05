@@ -7,7 +7,7 @@ def get_version():
     version_file = os.path.join(os.path.dirname(__file__), 'primero_api','version.py')
     with open(version_file) as f:
         version_line = f.read().strip()
-        version_match = re.match(r"^__version__ = '\"['\"]", version_line)
+        version_match = re.match(r"^__version__ = ['\"]([^'\"]*)['\"]", version_line)
         if version_match:
             return version_match.group(1)
         raise RuntimeError("Unable to find version string.")
