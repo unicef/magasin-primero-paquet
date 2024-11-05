@@ -1,4 +1,4 @@
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 
 def get_version():
     return __version__
@@ -12,7 +12,7 @@ magasin's      (_)
     | '_ \| '__| | '_ ` _ \ / _ \ '__/ _ \ 
     | |_) | |  | | | | | | |  __/ | | (_) |
     | .__/|_|  |_|_| |_| |_|\___|_|  \___/ 
-    | |                                   Pipeline                                     
+    | |                                   Pipeline
     |_|
     Version {__version__}
     https://github.com/unicef/magasin-primero-paquet
