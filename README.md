@@ -163,11 +163,14 @@ kubectl create secret generic magasin-primero-pipeline-secret \
   --from-literal=PRIMERO_USER='primero_cp' \
   --from-literal=PRIMERO_PASSWORD='primero2024' \
   --from-literal=PRIMERO_API_URL='http://playground.primerodev.org/api/v2/' \
-  --from-literal=FSSPEC_S3_ENDPOINT_URL=http://myminio-ml.magasin-tenant.svc.cluster.local \
+  --from-literal=FSSPEC_S3_ENDPOINT_URL=http://minio.magasin-tenant.svc.cluster.local \
   --from-literal=FSSPEC_S3_KEY='minio' \
   --from-literal=FSSPEC_S3_SECRET='minio123'
 ```
 
+Security tips: 
+1) In a productive environment, this secret should be managed using a secret store such as Azure Key Vault, AWS Secrets Manager, or HashiCorp Vault.
+2) The users on in this pipeline should have the minimum permission possible to access the data.
 
 ### Add the pipeline to your dagster instance.
 
@@ -267,6 +270,13 @@ You can check the values of the secrets to check it has been created properly:
 ```sh
 kubectl get secret magasin-primero-pipeline-secret -n magasin-dagster -o jsonpath='{.data.FSSPEC_S3_ENDPOINT_URL}' | base64 --decode
 ```
+
+If there is something wrong in the secret, you can delete it:
+```sh
+kubectl delete secret magasin-primero-pipeline-secret --namespace magasin-dagster
+```
+After this, you can recreate it using the `kubectl create secret` command mentioned earlier.
+
 
 ## Development
 
