@@ -205,7 +205,7 @@ Optionally, you can use a file to set these variables. Follow these steps:
 
 ```shell
 source integration_env.conf
-pytest integration_tests
+pytest integration_tests  --verbose -s
 ```
 
 ### All tests with code coverage
