@@ -33,15 +33,14 @@ primero_api_resource = PrimeroAPIResource(primero_user=primero_user,
 
 # Default schedule for the job every day at midnight
 schedule = ScheduleDefinition(
-    name="daily_job", 
+    name="daily_job",
     target=all_assets,
     cron_schedule="0 0 * * *",
     default_status= DefaultScheduleStatus.RUNNING)
 
 if environment == 'dev':
-    
     schedule = ScheduleDefinition(
-    name="dev_minute_job", 
+    name="dev_minute_job",
     target=all_assets,
     cron_schedule="* * * * *",
     #default_status= DefaultScheduleStatus.RUNNING
