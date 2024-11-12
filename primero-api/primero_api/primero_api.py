@@ -73,7 +73,7 @@ class CachedLimiterSession(CacheMixin, LimiterMixin, requests.Session):
 
 class PrimeroAPI:
 
-    def __init__(self, user, password, api_url, page_size=1000, rate=2, duration=1, cache_expire=3600):
+    def __init__(self, user, password, api_url, page_size=1000, rate=2, duration=1, cache_expire=0):
         '''
         Constructor
         user: the user name
@@ -82,7 +82,7 @@ class PrimeroAPI:
         page_size: the size of the page to use for pagination
         rate: the rate of requests per duration (default 2 requests per 1 seconds)
         duration: the duration in seconds of the rate limit (default 1 seconds)
-        cache_expire: the duration in seconds to expire the cache (default 3600 seconds)
+        cache_expire: the duration in seconds to expire the cache (default disabled)
 
         Note: In a pod the cache is removed when the pod is killed or restarted
         '''
@@ -296,13 +296,15 @@ class PrimeroAPI:
             return pd.DataFrame(anonymized_incidents)
         return pd.DataFrame(incidents)
         
-    def get_report_raw(self, report_id: int):
+    def get_report_raw(self, report_id: int, verbose=False):
         """
         Gets the report with the given a report id
         returns a dictionary with the content of the report or None if there is an error.
         """
 
         url = self.api_url + 'reports/' + str(report_id)
+        if verbose:
+            logger.info('report_id: %s, get_report url=%s', report_id, url)
         logger.debug('report_id: %s, get_report url=%s', report_id, url)
         return self._call_api_get(url)
 
@@ -352,7 +354,7 @@ class PrimeroAPI:
             return None
         return Report(report_json_dict, lang)
 
-    def get_reports(self, lang='en'):
+    def get_reports(self, lang='en', verbose=False):
         '''
         Gets the list of reports for the given page and page_size. 
         Returns a dictionary of Report objects with the id as key and the report as value
@@ -361,7 +363,10 @@ class PrimeroAPI:
         report_list = self.get_report_list()
         for report in report_list:
             id = report['id']
+            if verbose:
+                logger.info(f'Getting report {id}')
             report = self.get_report(id, lang)
+
             if report:
                 reports[id] = report
         return reports
