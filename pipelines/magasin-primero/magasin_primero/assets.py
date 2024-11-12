@@ -31,7 +31,7 @@ def cases(context: OpExecutionContext, primero_api: PrimeroAPIResource) -> DataF
              description="Check if cases has at least one case")
 def cases_num_check(cases: DataFrame) -> AssetCheckResult:
     rows = cases.shape[0]
-    return AssetCheckResult(passed=rows > 1, metadata={"num_cases": rows})
+    return AssetCheckResult(passed=rows > 0, metadata={"num_cases": rows})
 
 
 
@@ -55,7 +55,7 @@ def incidents(context: OpExecutionContext, primero_api: PrimeroAPIResource) -> D
              description="Check if cases has at least one incident")
 def incidents_num_check(incidents: DataFrame) -> AssetCheckResult:
     rows = incidents.shape[0]
-    return AssetCheckResult(passed=rows > 1, metadata={"num_incidents": rows})
+    return AssetCheckResult(passed=rows > 0, metadata={"num_incidents": rows})
 
 
 @asset
