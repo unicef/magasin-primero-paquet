@@ -29,6 +29,9 @@ Then, install the dependencies:
 ```bash
 pip install -e ".[dev]"
 ```
+```bash
+cp .env-sample .env
+```
 
 Edit the `.env` file
 
@@ -44,6 +47,12 @@ FSSPEC_S3_SECRET='minio123'
 BUCKET_NAME='primero'
 
 AZURE_STORAGE_CONNECTION_STRING="AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;"
+AZURE_STORAGE_ACCOUNT_NAME='azure account name'
+AZURE_STORAGE_ACCOUNT_KEY='azure account key'
+AZURE_STORAGE_SAS_TOKEN='azure sas token'
+AZURE_STORAGE_TENANT_ID='azure tenant id'
+AZURE_STORAGE_CLIENT_ID='azure client id'
+AZURE_STORAGE_CLIENT_SECRET='azure secret
 ```
 
 Where 
@@ -55,7 +64,9 @@ Where
 
 * The `AZURE_STORAGE_CONNECTION_STRING` is the connection string to connect to an Azure Blob Storage. The one in the example is the connection string to connect to the Azure Storage Emulator using [Microsoft Azure Storage Explorer](https://github.com/microsoft/AzureStorageExplorer).
 
-* The `ENVIRONMENT` is the environment where the pipeline is running. It can be `dev`. Any other value will be considered as 'prod'.
+* The `AZURE_STORAGE_ACCOUNT_NAME`, `AZURE_STORAGE_ACCOUNT_KEY`, `AZURE_STORAGE_SAS_TOKEN`, `AZURE_STORAGE_TENANT_ID`, `AZURE_STORAGE_CLIENT_ID`, `AZURE_STORAGE_CLIENT_SECRET` are the credentials to connect to an Azure Blob Storage. Depending on the configuration of the Azure Blob Storage, you may need to use some of them and remove the others. For example, ACCES_KEY and SAS_TOKEN are mutually exclusive.
+
+* The `ENVIRONMENT` is the environment where the pipeline is running. It can be `dev`. Any other value will be considered as 'prod'. Currently this affects only on the frequency of the schedule. In `dev` the schedule will run every 1 minute and it is disabled by default, in `prod` it will run every day and is enabled by default.
 
 Then, start the Dagster UI web server:
 
