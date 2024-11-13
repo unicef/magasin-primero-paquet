@@ -1,4 +1,5 @@
 import fsspec
+import pandas as pd
 from pandas import DataFrame
 from dagster import asset, asset_check, OpExecutionContext, AssetCheckResult
 from typing import Dict
@@ -12,13 +13,24 @@ def cases(context: OpExecutionContext, primero_api: PrimeroAPIResource) -> DataF
     context.log.info(f"Primero API library version {primero_api.version()}")
     context.log.info(f"Primero Server version {primero_api.get_server_version()}")
     context.log.info(f"Primero Server URL {primero_api.api_url}")
+    
     context.log.info("Getting cases... ")
     df = primero_api.get_cases()
-    #print(df)
     
+    # Log some information about the data
+    context.log.info(f"Number of cases: {df.shape[0]}")
+    context.log.info(f"Columns: {df.columns}")
+    
+    # TODO create a IO manager to handle the output
     fs= fsspec.filesystem('s3')
     with fs.open('/primero/cases/cases.parquet','wb') as f:
         df.to_parquet(f)
+
+    # TODO create a IO manager to handle the output
+    fs= fsspec.filesystem('s3')
+    with fs.open('/primero/cases/cases.parquet','wb') as f:
+        df.to_parquet(f)
+
     return df
 
 #
@@ -45,6 +57,7 @@ def incidents(context: OpExecutionContext, primero_api: PrimeroAPIResource) -> D
     # https://github.com/unicef/magasin-primero-paquet/tree/main/primero-api#interact-with-cases-and-the-incidents
     df = primero_api.get_incidents()
 
+    # TODO create a IO manager to handle the output
     fs= fsspec.filesystem('s3')
     with fs.open('/primero/incidents/incidents.parquet','wb') as f:
         df.to_parquet(f)
@@ -61,15 +74,28 @@ def incidents_num_check(incidents: DataFrame) -> AssetCheckResult:
 @asset
 def reports(context: OpExecutionContext, primero_api: PrimeroAPIResource)-> Dict:
     """ Retrieves reports from Primero API """
+    
+    context.log.info(f"Primero API library version {primero_api.version()}")
+    context.log.info(f"Primero Server version {primero_api.get_server_version()}")
+    context.log.info(f"Primero Server URL {primero_api.api_url}")
 
+    
     context.log.info("Getting reports... ")
-    reports = primero_api.get_reports()
+    # reports is a dictionary with the report id as key and the report object as value
+    primero_reports = primero_api.get_reports()
+    context.log.info(primero_reports)
 
+    #Display the number of reports
+    context.log.info(f"Number of reports: {len(primero_reports)}")
+    context.log.info(primero_reports.keys())
+
+    # TODO create a IO manager to handle the output
     fs= fsspec.filesystem('s3')
-    for report in reports.values():  
+    for report in primero_reports.values():  
+        context.log.info(f"Processing report {report.id} {report.slug}")
         if report is None:
             continue
-        with fs.open(f'/primero/reports/report-{report.id}-{report.slug}/report.parquet','wb') as f:
+        with fs.open(f'/primero/report-{report.id}-{report.slug}/report.parquet','wb') as f:
             report.to_pandas().to_parquet(f)
         
-    return reports
+    return primero_reports
