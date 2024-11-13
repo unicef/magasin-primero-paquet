@@ -226,6 +226,116 @@ As mentioned earlier We  use [parquet files](https://parquet.apache.org/) to sto
 
 ## Step 3 - Setup the dashboard
 
+For displaying the data in a dashboard we use [Apache Superset](https://superset.apache.org/). Superset is a modern, enterprise-ready business intelligence web application that makes it easy to visualize, explore and share insights from your data.
+
+Superset consumes data from a SQL database, so we need to setup a connection between the cloud storage and Superset. Because we use files to store the data, we need to use a translator, in this case, magasin includes [Apache Drill](https://drill.apache.org/), a SQL query engine for big data exploration.
+
+Why do we store the data in files? Because it is a cheap and scalable way to store data. Also for doing exploratory data analysis, it is easier to work with files than with a database.
+
+So there are two steps, the first is to setup the connection between the cloud storage and Apache Drill, and the second is to setup the connection between Apache Drill and Superset.
+
+## 3.1 Setup MinIO - Drill connection
+
+Launch the Drill UI:
+
+```sh
+mag drill ui
+```
+
+This will open a browser with the Drill UI.
+
+Go to the storage tab and click on the Create button to with the storage name **`s3`** and following configuration:
+
+```json
+{
+  "type": "file",
+  "connection": "s3a://primero",
+  "config": {
+    "fs.s3a.connection.ssl.enabled": "false",
+    "fs.s3a.path.style.access": "true",
+    "fs.s3a.endpoint": "myminio-hl.magasin-tenant.svc.cluster.local:9000",
+    "fs.s3a.access.key": "minio",
+    "fs.s3a.secret.key": "minio123"
+  },
+  "workspaces": {
+    "reports": {
+      "location": "/reports",
+      "writable": false,
+      "defaultInputFormat": null,
+      "allowAccessOutsideWorkspace": false
+    },
+    "cases": {
+      "location": "/cases",
+      "writable": false,
+      "defaultInputFormat": null,
+      "allowAccessOutsideWorkspace": false
+    },
+    "root": {
+      "location": "/",
+      "writable": false,
+      "defaultInputFormat": null,
+      "allowAccessOutsideWorkspace": false
+    },
+    "incidents": {
+      "location": "/incidents",
+      "writable": false,
+      "defaultInputFormat": null,
+      "allowAccessOutsideWorkspace": false
+    }
+  },
+  "formats": {
+    "parquet": {
+      "type": "parquet"
+    }
+  },
+  "authMode": "SHARED_USER",
+  "enabled": true
+}
+
+```
+
+You can test the connection using the following SQL commands in the Query tab:
+
+
+```sql
+SHOW DATABASES;
+```
+
+```sql
+USE `s3`.`cases`;
+```
+
+```sql
+USE `s3`.`incidents`;
+```
+
+```sql
+SELECT * FROM s3.`cases`.`cases.parquet` LIMIT 1
+```
+
+## 3.2 Setup a Drill - Superset Connection
+
+Open the superset UI
+```sh
+mag superset ui
+```
+Then login (defaults to: admin/admin) Then add a new database connection with this parameter:
+
+```
+drill+sadrill://drill-service.magasin-drill.svc.cluster.local:8047/s3?use_ssl=False
+```
+where `magasin-drill` is the name of the namespace where your drill service is running and `s3` is the name of the storage plugin you created in the previous step.
+```
+
+Following this steps:
+
+![annimated gif to set a superset - drill connection](./images/superset-drill-connection.png)
+
+Now you can create a new dashboard using the data from the drill connection.
+
+
+## 3.3 Install the dashboard
+
 Once you have the data in the cloud storage you can setup the dashboard to visualize the data. 
 
     TODO - Add the instructions to setup the dashboard
