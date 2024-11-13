@@ -8,7 +8,7 @@ This is a _paquet_ for magasin is a collection of code and configurations that a
 
 As a result of setting up this _paquet_ you will have a dashboard with insights about the cases and incidents of primero that gets fresh data from your Primero instance every day. 
 
-    TODO - Add a screenshot of the dashboard
+![Dashboard example](./images/dashboard.png)
 
 Alternatively, if you want do data explorations with the data extracted from Primero you can use the [Jupyter notebook](./explorations/primero.ipynb) in the `explorations/` folder. 
 
