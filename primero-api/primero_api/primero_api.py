@@ -73,7 +73,7 @@ class CachedLimiterSession(CacheMixin, LimiterMixin, requests.Session):
 
 class PrimeroAPI:
 
-    def __init__(self, user, password, api_url, page_size=1000, rate=2, duration=1, cache_expire=0):
+    def __init__(self, user, password, api_url, page_size=1000, rate=2, duration=1, cache_expire=1):
         '''
         Constructor
         user: the user name
