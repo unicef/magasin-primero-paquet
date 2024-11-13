@@ -22,6 +22,10 @@ def test_constructor_with_params():
 def primero_api():
    return PrimeroAPI(user=PRIMERO_USER, password=PRIMERO_PASSWORD, api_url=PRIMERO_API_URL, page_size=1, rate=2, duration=1, cache_expire=1)
 
+def test_display(primero_api):
+    print(primero_api.version())
+    print(primero_api.get_server_version())
+
 def test_get_cases_raw(primero_api):
     cases = primero_api.get_cases_raw()
     assert cases is not None
