@@ -75,7 +75,7 @@ curl -sSL https://magasin.unicef.io/install-magasin.sh | bash -s -- -i
 # MacOS
 curl -sSL https://magasin.unicef.io/install-magasin.sh | zsh -s -- -i 
 ```
-If any of them fails to be installed using the script, try to install them manually.
+If any of them fails to be installed using the script, try to install them manually. For more information read the [magasin installation instructions](https://magasin.unicef.io/install/).
 
 Ensure kubectl is pointing to the right cluster:
 
